@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>College AI Assistant</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <main class="app">
+
+        <!-- =========================
+             HEADER
+        ========================== -->
+
+        <header class="header">
+
+            <div class="brand">
+
+                <div class="logo">
+                    🎓
+                </div>
+
+                <div class="brand-text">
+                    <h1>College AI</h1>
+                    <span>Enquiry Assistant</span>
+                </div>
+
+            </div>
+
+            <div class="online-status">
+                <span class="status-dot"></span>
+                Online
+            </div>
+
+        </header>
+
+
+        <!-- =========================
+             CHAT AREA
+        ========================== -->
+
+        <section class="chat-container">
+
+            <div class="chat-top">
+
+                <button class="back-button" title="Back">
+                    ←
+                </button>
+
+                <div>
+                    <h2>AI Assistant</h2>
+                    <p>Ask me anything about our college</p>
+                </div>
+
+            </div>
+
+
+            <!-- Chat messages -->
+
+            <div class="messages" id="messages">
+
+                <!-- Bot message -->
+
+                <div class="message-row bot-row">
+
+                    <div class="avatar bot-avatar">
+                        AI
+                    </div>
+
+                    <div class="message bot-message">
+
+                        <p>
+                            Hello! 👋
+                        </p>
+
+                        <p>
+                            Welcome to our College AI Assistant.
+                            I can help you with admissions, courses,
+                            fees, scholarships, placements, hostel
+                            facilities and more.
+                        </p>
+
+                        <span class="message-time">
+                            Just now
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- User message -->
+
+                <div class="message-row user-row">
+
+                    <div class="message user-message">
+
+                        <p>
+                            What courses are available?
+                        </p>
+
+                        <span class="message-time">
+                            Just now
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Bot response -->
+
+                <div class="message-row bot-row">
+
+                    <div class="avatar bot-avatar">
+                        AI
+                    </div>
+
+                    <div class="message bot-message">
+
+                        <p>
+                            We offer undergraduate and postgraduate
+                            programs across multiple departments.
+                        </p>
+
+                        <p>
+                            Would you like to know about a specific
+                            course or department?
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 SUGGESTED QUESTIONS
+            ========================== -->
+
+            <div class="suggestions">
+
+                <p class="suggestion-title">
+                    Frequently asked
+                </p>
+
+                <div class="suggestion-list">
+
+                    <button
+                        class="suggestion"
+                        onclick="sendSuggestion('What is the admission process?')">
+
+                        🎓 Admission Process
+
+                    </button>
+
+                    <button
+                        class="suggestion"
+                        onclick="sendSuggestion('What courses are available?')">
+
+                        📚 Courses
+
+                    </button>
+
+                    <button
+                        class="suggestion"
+                        onclick="sendSuggestion('What are the college fees?')">
+
+                        💳 Fees
+
+                    </button>
+
+                    <button
+                        class="suggestion"
+                        onclick="sendSuggestion('Is hostel accommodation available?')">
+
+                        🏠 Hostel
+
+                    </button>
+
+                    <button
+                        class="suggestion"
+                        onclick="sendSuggestion('Tell me about placements')">
+
+                        💼 Placements
+
+                    </button>
+
+                    <button
+                        class="suggestion"
+                        onclick="sendSuggestion('Are scholarships available?')">
+
+                        🏆 Scholarships
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 INPUT AREA
+            ========================== -->
+
+            <div class="input-area">
+
+                <div class="input-wrapper">
+
+                    <input
+                        type="text"
+                        id="userInput"
+                        placeholder="Ask your question..."
+                        autocomplete="off"
+                    >
+
+                    <button
+                        class="send-button"
+                        id="sendButton"
+                        onclick="sendMessage()"
+                        aria-label="Send message">
+
+                        ➤
+
+                    </button>
+
+                </div>
+
+                <p class="disclaimer">
+                    AI Assistant may occasionally provide inaccurate information.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             BOTTOM NAVIGATION
+        ========================== -->
+
+        <nav class="bottom-nav">
+
+            <button class="nav-item active">
+
+                <span class="nav-icon">💬</span>
+                <span>Chat</span>
+
+            </button>
+
+            <button class="nav-item">
+
+                <span class="nav-icon">📚</span>
+                <span>Courses</span>
+
+            </button>
+
+            <button class="nav-item">
+
+                <span class="nav-icon">📞</span>
+                <span>Contact</span>
+
+            </button>
+
+        </nav>
+
+    </main>
+
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================== -->
+
+    <script>
+
+        const input = document.getElementById("userInput");
+        const messages = document.getElementById("messages");
+
+        /*
+         * Send message when Enter is pressed
+         */
+
+        input.addEventListener("keydown", function(event) {
+
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+
+        });
+
+
+        /*
+         * Send normal message
+         */
+
+        function sendMessage() {
+
+            const text = input.value.trim();
+
+            if (text === "") {
+                return;
+            }
+
+            addUserMessage(text);
+
+            input.value = "";
+
+            showTypingIndicator();
+
+            setTimeout(function() {
+
+                removeTypingIndicator();
+
+                const response = generateResponse(text);
+
+                addBotMessage(response);
+
+            }, 900);
+
+        }
+
+
+        /*
+         * Send suggested question
+         */
+
+        function sendSuggestion(question) {
+
+            input.value = question;
+
+            sendMessage();
+
+        }
+
+
+        /*
+         * Add user message
+         */
+
+        function addUserMessage(text) {
+
+            const row = document.createElement("div");
+
+            row.className = "message-row user-row";
+
+            row.innerHTML = `
+
+                <div class="message user-message">
+
+                    <p>${escapeHTML(text)}</p>
+
+                    <span class="message-time">
+                        Just now
+                    </span>
+
+                </div>
+
+            `;
+
+            messages.appendChild(row);
+
+            scrollToBottom();
+
+        }
+
+
+        /*
+         * Add bot message
+         */
+
+        function addBotMessage(text) {
+
+            const row = document.createElement("div");
+
+            row.className = "message-row bot-row";
+
+            row.innerHTML = `
+
+                <div class="avatar bot-avatar">
+                    AI
+                </div>
+
+                <div class="message bot-message">
+
+                    <p>${text}</p>
+
+                    <span class="message-time">
+                        Just now
+                    </span>
+
+                </div>
+
+            `;
+
+            messages.appendChild(row);
+
+            scrollToBottom();
+
+        }
+
+
+        /*
+         * Typing indicator
+         */
+
+        function showTypingIndicator() {
+
+            const row = document.createElement("div");
+
+            row.className = "message-row bot-row";
+
+            row.id = "typingIndicator";
+
+            row.innerHTML = `
+
+                <div class="avatar bot-avatar">
+                    AI
+                </div>
+
+                <div class="typing-message">
+
+                    <span></span>
+                    <span></span>
+                    <span></span>
+
+                </div>
+
+            `;
+
+            messages.appendChild(row);
+
+            scrollToBottom();
+
+        }
+
+
+        /*
+         * Remove typing indicator
+         */
+
+        function removeTypingIndicator() {
+
+            const indicator =
+                document.getElementById("typingIndicator");
+
+            if (indicator) {
+                indicator.remove();
+            }
+
+        }
+
+
+        /*
+         * Simple demo chatbot responses
+         *
+         * Replace this function later with
+         * your backend / AI API.
+         */
+
+        function generateResponse(question) {
+
+            const q = question.toLowerCase();
+
+
+            if (
+                q.includes("admission") ||
+                q.includes("apply")
+            ) {
+
+                return `
+                    Our admission process includes checking
+                    eligibility, submitting the application,
+                    uploading the required documents and
+                    completing the admission process.
+                    <br><br>
+                    Would you like information about eligibility
+                    or important admission dates?
+                `;
+
+            }
+
+
+            if (
+                q.includes("course") ||
+                q.includes("program") ||
+                q.includes("department")
+            ) {
+
+                return `
+                    We offer several undergraduate and postgraduate
+                    programs through different departments.
+                    <br><br>
+                    Please tell me which course you are interested in,
+                    such as BCA, BBA, B.Tech or MBA.
+                `;
+
+            }
+
+
+            if (
+                q.includes("fee") ||
+                q.includes("fees") ||
+                q.includes("cost")
+            ) {
+
+                return `
+                    Course fees vary depending on the program.
+                    I can provide the fee details for a specific
+                    course.
+                    <br><br>
+                    Which course are you interested in?
+                `;
+
+            }
+
+
+            if (
+                q.includes("hostel") ||
+                q.includes("accommodation")
+            ) {
+
+                return `
+                    Yes, hostel accommodation is available for
+                    students. Separate facilities may be available
+                    depending on availability and eligibility.
+                    <br><br>
+                    You can contact the college office for current
+                    hostel availability and fee details.
+                `;
+
+            }
+
+
+            if (
+                q.includes("placement") ||
+                q.includes("job") ||
+                q.includes("company")
+            ) {
+
+                return `
+                    The college provides placement assistance through
+                    its placement cell. Students may receive support
+                    with training, interviews and recruitment drives.
+                    <br><br>
+                    Would you like to know about placement companies
+                    or placement packages?
+                `;
+
+            }
+
+
+            if (
+                q.includes("scholarship") ||
+                q.includes("financial")
+            ) {
+
+                return `
+                    Scholarships may be available for eligible
+                    students based on academic performance,
+                    government schemes and other criteria.
+                    <br><br>
+                    Please contact the college administration for
+                    the latest scholarship eligibility details.
+                `;
+
+            }
+
+
+            if (
+                q.includes("contact") ||
+                q.includes("phone") ||
+                q.includes("email")
+            ) {
+
+                return `
+                    You can contact the college administration
+                    through the official college phone number or
+                    email address.
+                    <br><br>
+                    College Office: +91 98765 43210
+                    <br>
+                    Email: admissions@college.edu
+                `;
+
+            }
+
+
+            return `
+                I'm here to help with college enquiries.
+                You can ask me about <b>admissions, courses,
+                fees, scholarships, placements, hostel facilities,
+                examinations or contact information.</b>
+            `;
+
+        }
+
+
+        /*
+         * Prevent HTML injection in user messages
+         */
+
+        function escapeHTML(text) {
+
+            const div = document.createElement("div");
+
+            div.textContent = text;
+
+            return div.innerHTML;
+
+        }
+
+
+        /*
+         * Scroll chat to latest message
+         */
+
+        function scrollToBottom() {
+
+            messages.scrollTop = messages.scrollHeight;
+
+        }
+
+    </script>
+
+</body>
+</html>
